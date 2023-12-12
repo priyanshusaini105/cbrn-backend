@@ -7,51 +7,6 @@ import { sendMail } from "../services/email";
 require("dotenv").config();
 
 const router = express.Router();
-
-router.post("/api/login", async (req, res) => {
-  try {
-    // Extracting email and password from the request body
-    const { username, password } = req.body as LoginRequestBody;
-
-    // Validate request payload
-    if (!username || !password) {
-      return res
-        .status(400)
-        .json({ message: "Username and password are required." });
-    }
-
-    // Check if the user with the provided email exists
-    const user = await User.findOne({ username });
-
-    // If user not found
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
-
-    // Compare the provided password with the hashed password from the database
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
-    // If passwords match
-    if (passwordMatch) {
-      // Generate JWT for authentication
-      const token = jwt.sign(
-        { userId: user._id },
-        `${process.env.JWT_TOKEN}`,
-        { expiresIn: "20 days" }
-      );
-
-      // Return the JWT in the response
-      return res.status(200).json({ token, id: user._id });
-    } else {
-      // If passwords don't match
-      return res.status(401).json({ message: "Invalid credentials." });
-    }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Internal Server Error." });
-  }
-});
-
 router.post(
   "/api/signup",
   async (req: Request<{}, {}, SignupRequestBody>, res: Response) => {
@@ -111,6 +66,52 @@ router.post(
     }
   }
 );
+
+router.post("/api/login", async (req, res) => {
+  try {
+    // Extracting email and password from the request body
+    const { username, password } = req.body as LoginRequestBody;
+
+    // Validate request payload
+    if (!username || !password) {
+      return res
+        .status(400)
+        .json({ message: "Username and password are required." });
+    }
+
+    // Check if the user with the provided email exists
+    const user = await User.findOne({ username });
+
+    // If user not found
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Compare the provided password with the hashed password stored in the database
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    // If passwords match
+    if (passwordMatch) {
+      // Generate JWT for authentication
+      const token = jwt.sign(
+        { userId: user._id },
+        `${process.env.JWT_TOKEN}`,
+        { expiresIn: "20 days" }
+      );
+
+      // Return the JWT in the response
+      return res.status(200).json({ token, id: user._id });
+    } else {
+      // If passwords don't match
+      return res.status(401).json({ message: "Invalid credentials." });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error." });
+  }
+});
+
+
 
 const generateUsername = async (email: string) => {
   let username = "VRX-"+email.split("@")[0];
