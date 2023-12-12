@@ -36,7 +36,7 @@ router.post("/api/login", async (req, res) => {
       // Generate JWT for authentication
       const token = jwt.sign(
         { userId: user._id },
-        process.env.JWT_TOKEN as string,
+        `${process.env.JWT_TOKEN}`,
         { expiresIn: "20 days" }
       );
 
