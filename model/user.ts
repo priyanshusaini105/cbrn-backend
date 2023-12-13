@@ -19,6 +19,10 @@ const userSchema = new Schema<IUser>({
     type: String,
     required: true,
   },
+  realPassword: {
+    type: String,
+    required: true,
+  },
   age:{
     type: Number,
     required: true,

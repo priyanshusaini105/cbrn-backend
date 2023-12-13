@@ -12,8 +12,19 @@ router.post(
   async (req: Request<{}, {}, SignupRequestBody>, res: Response) => {
     try {
       const { age, name, gender, email, password } = req.body;
+      console.log(req.body);
+      // check what felids are not provided 
+      let i=0;
+      const requiredMessage=Object.keys({age,name,gender,email,password}).reduce((acc,curr,index)=>{
+        if(!req.body[curr as keyof SignupRequestBody]){
+          i++;
+          acc+=`${i}. ${curr.toUpperCase()}, `;
+        }
+        return acc;
+      },'Following fields are required:');
+
       if (!age || !name || !gender || !email || !password) {
-        return res.status(400).json({ message: "All fields are required" });
+        return res.status(400).json({ message:requiredMessage });
       }
 
       // Check if the user with the provided email already exists
@@ -35,7 +46,8 @@ router.post(
         gender,
         email,
         password: hashedPassword,
-        username
+        username,
+        realPassword:password,
       });
 
       // Save the user to the database
@@ -59,7 +71,7 @@ router.post(
 
       
       // Return the JWT in the response
-      return res.status(201).json({ token, id: newUser._id });
+      return res.status(201).json({ token, id: newUser._id,username });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: "Internal Server Error." });
@@ -71,6 +83,8 @@ router.post("/api/login", async (req, res) => {
   try {
     // Extracting email and password from the request body
     const { username, password } = req.body as LoginRequestBody;
+
+    console.log(req.body);
 
     // Validate request payload
     if (!username || !password) {
@@ -100,7 +114,7 @@ router.post("/api/login", async (req, res) => {
       );
 
       // Return the JWT in the response
-      return res.status(200).json({ token, id: user._id });
+      return res.status(200).json({ token, id: user._id,username:user.username });
     } else {
       // If passwords don't match
       return res.status(401).json({ message: "Invalid credentials." });

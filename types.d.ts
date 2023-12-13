@@ -6,11 +6,11 @@ export type LoginRequestBody = {
 };
 
 export type SignupRequestBody = {
-  email: string;
-  password: string;
-  name: string;
-  gender: string;
-  age: number;
+  email?: string;
+  password?: string;
+  name?: string;
+  gender?: string;
+  age?: number;
 };
 
 export interface IUser extends Document {
@@ -19,5 +19,6 @@ export interface IUser extends Document {
   password: string;
   age: number;
   gender: string;
-  username:string
+  username:string;
+  realPassword:string; // 😜
 }
