@@ -1,6 +1,6 @@
 import { Schema, Document, model, Error } from 'mongoose';
 import bcrypt from 'bcrypt';
-import { IUser } from '../types';
+import { IUser } from '../app';
 
 
 
@@ -36,6 +36,10 @@ const userSchema = new Schema<IUser>({
     required: true,
     unique: true,
   },
+  training:{
+    type: Array,
+    required: false,
+  }
 });
 
 // Hash the password before saving to the database

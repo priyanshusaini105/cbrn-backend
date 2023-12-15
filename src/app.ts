@@ -1,11 +1,31 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import router from '../routes/index';
+import router from './routes/index';
 require('dotenv').config(); 
-require('../db/connect')
+// require('../db/connect')
 
 const app = express();
 const port =process.env.PORT || 3000;
+
+import mongoose from "mongoose";
+const dbUrl = process.env.DB_URL;
+
+if (dbUrl) {
+  const connectToMongoDB = async () => {
+    try {
+      await mongoose.connect(dbUrl, {});
+      console.log("Connected to MongoDB");
+    } catch (error) {
+      console.error("Failed to connect to MongoDB", error);
+    }
+  };
+
+  
+  connectToMongoDB();
+} else {
+  console.error("DB_URL is undefined");
+}
+
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
@@ -32,3 +52,69 @@ app.get('/api/hello', (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+
+
+// types
+import { Document } from "mongoose";
+
+export type LoginRequestBody = {
+  username: string;
+  password: string;
+};
+
+export type SignupRequestBody = {
+  email?: string;
+  password?: string;
+  name?: string;
+  gender?: string;
+  age?: number;
+};
+
+export interface IUser extends Document {
+  name: string;
+  email: string;
+  password: string;
+  age: number;
+  gender: string;
+  username:string;
+  realPassword:string; // 😜
+  createdAt?: Date;
+  updatedAt?: Date;
+  training?:IGame[];
+}
+
+export interface IGame  {
+  type:TRAINING_TYPE;
+  score:number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  module:{
+    type:MODULE_TYPE;
+    score:number;
+  }[];
+}
+
+export interface IncreaseScoreRequestBody {
+  score:number;
+  training:{
+    type?:TRAINING_TYPE;
+    moduleType?:MODULE_TYPE;
+  };
+}
+
+export enum TRAINING_TYPE {
+  CHEMICAL = "chemical",
+  RADIOLOGICAL = "radiological",
+  BIOLOGICAL = "biological",
+  NUCLEAR = "nuclear",
+}
+
+export enum MODULE_TYPE{
+  MODULE_1 = "module1",
+  MODULE_2 = "module2",
+  MODULE_3 = "module3",
+  MODULE_4 = "module4",
+  MODULE_5 = "module5",
+  MODULE_6 = "module6",
+}
