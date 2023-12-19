@@ -44,7 +44,7 @@ certiRouter.get("/api/finish/", async (req: Request, res: Response) => {
 
     <p>As a recognition of your achievement, please find attached your training completion certificate. Click the download button below to get your certificate:</p>
 
-    <a href="https://cbrn.onrender.com/api/certificate/${certificate._id}" download>
+    <a href="https://cbrn.onrender.com/certificates/${certificate._id}" download>
         <button style="background-color: #4CAF50; color: white; padding: 10px 20px; font-size: 16px; cursor: pointer; border: none; border-radius: 5px;">
             Download Certificate 📜
         </button>
