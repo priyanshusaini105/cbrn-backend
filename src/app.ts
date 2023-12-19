@@ -1,13 +1,14 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import router from './routes/index';
-require('dotenv').config(); 
+import express from "express";
+import bodyParser from "body-parser";
+import router from "./routes/index";
+require("dotenv").config();
+import certiRouter from "./routes/certificates";
 // require('../db/connect')
 
 const app = express();
-const port =process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 const dbUrl = process.env.DB_URL;
 
 if (dbUrl) {
@@ -20,40 +21,36 @@ if (dbUrl) {
     }
   };
 
-  
   connectToMongoDB();
 } else {
   console.error("DB_URL is undefined");
 }
 
-
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
 app.use(router);
+app.use(certiRouter);
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+app.get("/", (req, res) => {
+  res.send("Hello World!");
 });
 
-app.get('/api', (req, res) => {
-  res.send('Hello World!');
+app.get("/api", (req, res) => {
+  res.send("Hello World!");
 });
 
-app.get('/api/test', (req, res) => {
-  res.send('Hello World!');
+app.get("/api/test", (req, res) => {
+  res.send("Hello World!");
 });
 
-app.get('/api/hello', (req, res) => {
-  res.send('Hello World!');
+app.get("/api/hello", (req, res) => {
+  res.send("Hello World!");
 });
-
 
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
-
 
 // types
 import { Document } from "mongoose";
@@ -77,29 +74,35 @@ export interface IUser extends Document {
   password: string;
   age: number;
   gender: string;
-  username:string;
-  realPassword:string; // 😜
+  username: string;
+  realPassword: string; // 😜
   createdAt?: Date;
   updatedAt?: Date;
-  training?:IGame[];
+  training?: IGame[];
+  certificates: mongoose.Types.ObjectId[];
 }
 
-export interface IGame  {
-  type:TRAINING_TYPE;
-  score:number;
+export interface Certificate extends Document {
+  html: string;
+  pdf: Buffer;
+}
+
+export interface IGame {
+  type: TRAINING_TYPE;
+  score: number;
   createdAt?: Date;
   updatedAt?: Date;
-  module:{
-    type:MODULE_TYPE;
-    score:number;
+  module: {
+    type: MODULE_TYPE;
+    score: number;
   }[];
 }
 
 export interface IncreaseScoreRequestBody {
-  score:number;
-  training:{
-    type?:TRAINING_TYPE;
-    moduleType?:MODULE_TYPE;
+  score: number;
+  training: {
+    type?: TRAINING_TYPE;
+    moduleType?: MODULE_TYPE;
   };
 }
 
@@ -110,11 +113,19 @@ export enum TRAINING_TYPE {
   NUCLEAR = "nuclear",
 }
 
-export enum MODULE_TYPE{
+export enum MODULE_TYPE {
   MODULE_1 = "module1",
   MODULE_2 = "module2",
   MODULE_3 = "module3",
   MODULE_4 = "module4",
   MODULE_5 = "module5",
   MODULE_6 = "module6",
+}
+
+export interface DashboardData {
+  user:IUser,
+  training: {
+    type: TRAINING_TYPE;
+    score: number;
+  }[];
 }

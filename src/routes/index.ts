@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 // import { IncreaseScoreRequestBody, LoginRequestBody,  SignupRequestBody, TRAINING_TYPE } from "../types";
 import { User } from "../model";
 import { sendMail } from "../services/email";
@@ -11,9 +11,15 @@ import {
   SignupRequestBody,
   TRAINING_TYPE,
 } from "../app";
+import { generateCertificate } from "../services/certificates";
+import { DashboardData } from '../app';
 require("dotenv").config();
 
 const router = express.Router();
+
+interface MyJWTPayload extends JwtPayload {
+  userId: string;
+}
 
 router.post(
   "/api/signup",
@@ -62,6 +68,7 @@ router.post(
         username,
         realPassword: password,
         training: [],
+        certificate: [],
       });
 
       // Save the user to the database
@@ -73,8 +80,10 @@ router.post(
         `${process.env.JWT_TOKEN}`,
         { expiresIn: "20 days" }
       );
+      const Email_HTML = `<div>Hello ${name},</div>\n\n<div>Welcome to VR RESCUES X! \n </div> <div>Thank you for signing up.</div>\n\nRegards,\nYour VR Rescue X Team,., Your username is <b> ${username} </b> `;
+      const Email_Subject = "Welcome to VR Rescue X";
 
-      sendMail(email, username, name, (err, info) => {
+      sendMail(newUser, Email_HTML, Email_Subject, (err, info) => {
         if (err) {
           console.log("error", err);
         } else {
@@ -169,7 +178,6 @@ router.get("/api/user/:id", async (req, res) => {
   }
 });
 
-
 // API Route to Increase User Score
 router.put(
   "/api/user/:id/score/",
@@ -191,14 +199,12 @@ router.put(
 
       const { type, moduleType } = training;
 
-  
       if (!type || !moduleType) {
         return res
           .status(400)
           .json({ message: "Training type and moduleType are required." });
       }
 
-      
       if (!Object.values(MODULE_TYPE).includes(moduleType)) {
         return res.status(400).json({ message: "Invalid module type." });
       }
@@ -236,5 +242,11 @@ router.put(
     }
   }
 );
+
+
+
+
+
+
 
 export default router;
