@@ -13,18 +13,20 @@ interface MyJWTPayload extends JwtPayload {
   userId: string;
 }
 
-certiRouter.get("/api/finish/", async (req: Request, res: Response) => {
+certiRouter.get("/api/finish/:id", async (req: Request, res: Response) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized." });
-    }
-    const decoded = jwt.verify(
-      token,
-      `${process.env.JWT_TOKEN}`
-    ) as MyJWTPayload;
+    // const token = req.headers.authorization?.split(" ")[1];
+    // if (!token) {
+    //   return res.status(401).json({ message: "Unauthorized." });
+    // }
+    // const decoded = jwt.verify(
+    //   token,
+    //   `${process.env.JWT_TOKEN}`
+    // ) as MyJWTPayload;
 
-    const { userId } = decoded;
+    // const { userId } = decoded;
+
+    const userId=req.params.id;
 
     const user = await User.findById(userId);
 
